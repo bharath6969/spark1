@@ -76,3 +76,15 @@ new_join.createTempView('upload_connect')
 Final_user_report = spark.sql('select a.last_activity_user_id,a.Total_updates,a.Total_inserts,a.Total_deletes,a.last_type,a.latest_timestamp1,a.is_greater_than_2_days,b.total_upload_counts from  upload_connect as a,user_dump_table as b where a.last_activity_user_id == b.user_id')
 Final_user_report.show()
 
+spark.sql("CREATE EXTERNAL TABLE IF NOT EXISTS project.final_user_report (last_activity_user_id INT,Total_updates INT,Total_inserts INT,Total_deletes INT,last_type STRING,latest_timestamp1 TIMESTAMP,is_greater_than_2_days BOOLEAN,total_upload_counts INT)\
+        ROW FORMAT DELIMITED\
+        FIELDS TERMINATED BY ','\
+        STORED AS TEXTFILE\
+        LOCATION '/user/hadoop/vishnu/final_report.csv'")
+
+
+
+
+
+Final_user_report.write.mode("overwrite").saveAsTable("project.final_user_report")
+
