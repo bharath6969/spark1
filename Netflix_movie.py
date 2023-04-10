@@ -22,7 +22,7 @@ from pyspark.sql.functions import row_number, col,rank
 joining = raw_credits.join(raw_titles, raw_credits["id"] == raw_titles["id"])
 
 
-#filtering joining based on ACTOR role and fill the imdb_score to 0 if null
+#filtering joining based on ACTOR role and take non-null values
 joining = joining.filter(col('role') == "ACTOR" )
 joining = joining.filter(col('imdb_score').isNotNull())
 
@@ -33,7 +33,7 @@ joining.select(col('type')).distinct().show()
 joining_show = joining.filter(col('type')=="MOVIE")
 
 
-# selecting and using groupby function based on years and using aggreation function on imdb_score as max value 
+# selecting and using groupby function based on years and using aggreation function on imdb_score as min value 
 joining_show = joining_show.select(col('name'), col('role'), col('title'), col('release_year'), col('imdb_score'), col('type'))
 grouped_show = joining_show.groupBy(col('release_year'), col('name'), col('role'), col('title'), col('imdb_score'),col('type')).agg({"imdb_score": "min"})
 # grouped_show.show(5)
@@ -41,7 +41,7 @@ grouped_show = joining_show.groupBy(col('release_year'), col('name'), col('role'
 #we are renaming the max(imdb_score to imdb_score for clear understanding 
 grouped_show.withColumnRenamed('min(imdb_score)','imdb_score')
 
-# removed the max(imdb_score) column
+# removed the min(imdb_score) column
 grouped_show = grouped_show.drop('min(imdb_score)')
 
 
